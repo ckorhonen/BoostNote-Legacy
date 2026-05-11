@@ -32,6 +32,10 @@ class TopBar extends React.Component {
     this.handleSearchBlur = this.handleSearchBlur.bind(this)
     this.handleSearchChange = this.handleSearchChange.bind(this)
     this.handleSearchClearButton = this.handleSearchClearButton.bind(this)
+    this.clearSearch = this.clearSearch.bind(this)
+    this.clearSearchHandler = () => {
+      this.clearSearch(false)
+    }
 
     this.debouncedUpdateKeyword = debounce(
       keyword => {
@@ -60,24 +64,33 @@ class TopBar extends React.Component {
       })
     }
     ee.on('top:focus-search', this.focusSearchHandler)
+    ee.on('top:clear-search', this.clearSearchHandler)
     ee.on('code:init', this.codeInitHandler)
   }
 
   componentWillUnmount() {
     ee.off('top:focus-search', this.focusSearchHandler)
+    ee.off('top:clear-search', this.clearSearchHandler)
     ee.off('code:init', this.codeInitHandler)
   }
 
-  handleSearchClearButton(e) {
+  clearSearch(blurSearch) {
     const { dispatch } = this.props
     this.setState({
       search: '',
       isSearching: false
     })
-    this.refs.search.childNodes[0].blur
+    const searchInput = this.refs.search.childNodes[0]
+    if (blurSearch) {
+      searchInput.blur()
+    }
     dispatch(push('/searched'))
-    e.preventDefault()
     this.debouncedUpdateKeyword('')
+  }
+
+  handleSearchClearButton(e) {
+    e.preventDefault()
+    this.clearSearch(true)
   }
 
   handleKeyDown(e) {

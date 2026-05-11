@@ -243,10 +243,13 @@ class NoteList extends React.Component {
 
     let targetIndex = this.getTargetIndex()
 
-    if (targetIndex === 0) {
+    if (targetIndex === 0 && shiftKeyDown) {
       return
+    } else if (targetIndex === 0) {
+      targetIndex = this.notes.length - 1
+    } else {
+      targetIndex--
     }
-    targetIndex--
 
     if (!shiftKeyDown) {
       selectedNoteKeys = []
@@ -326,6 +329,17 @@ class NoteList extends React.Component {
 
   handleNoteListKeyDown(e) {
     if (e.metaKey) return true
+
+    // Ctrl+D clears the active search without focusing the search field.
+    if (
+      e.ctrlKey &&
+      e.keyCode === 68 &&
+      this.props.location.pathname.match(/\/searched/)
+    ) {
+      e.preventDefault()
+      ee.emit('top:clear-search')
+      return
+    }
 
     // A key
     if (e.keyCode === 65 && !e.shiftKey) {
