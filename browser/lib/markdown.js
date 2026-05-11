@@ -355,8 +355,30 @@ class Markdown {
       )
       return `${plantUmlServerAddress}/${type}/${zippedCode}`
     }
+    const renderPlantUmlImage = (tokens, idx, options, env, self) => {
+      const token = tokens[idx]
+      const altIndex = token.attrIndex('alt')
+
+      if (altIndex >= 0) {
+        token.attrs[altIndex][1] = self.renderInlineAsText(
+          token.children,
+          options,
+          env
+        )
+      }
+
+      const classIndex = token.attrIndex('class')
+      if (classIndex < 0) {
+        token.attrPush(['class', 'plantuml-diagram'])
+      } else {
+        token.attrs[classIndex][1] += ' plantuml-diagram'
+      }
+
+      return self.renderToken(tokens, idx, options)
+    }
 
     this.md.use(plantuml, {
+      render: renderPlantUmlImage,
       generateSource: umlCode =>
         parsePlantUml(umlCode, '@startuml', '@enduml', 'svg')
     })
@@ -365,6 +387,7 @@ class Markdown {
     this.md.use(plantuml, {
       openMarker: '@startditaa',
       closeMarker: '@endditaa',
+      render: renderPlantUmlImage,
       generateSource: umlCode =>
         parsePlantUml(umlCode, '@startditaa', '@endditaa', 'png')
     })
@@ -373,6 +396,7 @@ class Markdown {
     this.md.use(plantuml, {
       openMarker: '@startmindmap',
       closeMarker: '@endmindmap',
+      render: renderPlantUmlImage,
       generateSource: umlCode =>
         parsePlantUml(umlCode, '@startmindmap', '@endmindmap', 'svg')
     })
@@ -381,6 +405,7 @@ class Markdown {
     this.md.use(plantuml, {
       openMarker: '@startwbs',
       closeMarker: '@endwbs',
+      render: renderPlantUmlImage,
       generateSource: umlCode =>
         parsePlantUml(umlCode, '@startwbs', '@endwbs', 'svg')
     })
@@ -389,6 +414,7 @@ class Markdown {
     this.md.use(plantuml, {
       openMarker: '@startgantt',
       closeMarker: '@endgantt',
+      render: renderPlantUmlImage,
       generateSource: umlCode =>
         parsePlantUml(umlCode, '@startgantt', '@endgantt', 'svg')
     })
